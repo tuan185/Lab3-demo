@@ -1,0 +1,28 @@
+/*
+ * LED_control.c
+ *
+ *  Created on: Oct 25, 2023
+ *      Author: Admin
+ */
+#include "LED_control.h"
+
+uint8_t LED[10] = {0x3F,		//decode for 0
+				0x06, 			//decode for 1
+				0x5B, 			//decode for 2
+				0x4F, 			//decode for 3
+				0x66, 			//decode for 4
+				0x6D, 			//decode for 5
+				0x7D, 			//decode for 6
+				0x07, 			//decode for 7
+				0x7F, 			//decode for 8
+				0x6F};			//decode for 9
+
+void display7SEG(uint8_t num){
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, !((LED[num]>>0)&0x01));
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, !((LED[num]>>1)&0x01));
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, !((LED[num]>>2)&0x01));
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, !((LED[num]>>3)&0x01));
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, !((LED[num]>>4)&0x01));
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, !((LED[num]>>5)&0x01));
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, !((LED[num]>>6)&0x01));
+}

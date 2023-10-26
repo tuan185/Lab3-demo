@@ -1,0 +1,45 @@
+/*
+ * timer.c
+ *
+ *  Created on: Oct 25, 2023
+ *      Author: Admin
+ */
+include "timer.h"
+
+static int timer7SEG_counter = 0;
+static int timer7SEG_flag = 0;
+static int TIMER_CYCLE = 10;
+
+void timerInit(int scale, int period){
+	TIMER_CYCLE = ((scale+1)*(period+1))/8000;
+};
+
+int getTimerFlag(int flag){
+	if(flag == 0){
+		return timer7SEG_flag;
+	}
+	return 0;
+};
+
+void set7SEGTimer(int duration){
+	timer7SEG_counter = duration / TIMER_CYCLE;
+	timer7SEG_flag = 0;
+}
+void timer_run(){
+	if(timer7SEG_counter > 0){
+		timer7SEG_counter--;
+		if(timer7SEG_counter == 0) timer7SEG_flag = 1;
+	}
+}
+
+int counter_test = 100;
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+{
+	counter_test--;
+	if(counter_test <= 0){
+		counter_test = 100;
+
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	}
+	timer_run();
+}
