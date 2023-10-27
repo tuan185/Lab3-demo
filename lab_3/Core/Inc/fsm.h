@@ -10,6 +10,6 @@
 #include "main.h"
 void fsm_mode(void);
 void mode_1(void);
-void mode_2(void);
+void mode_2();
 void mode_3(void);
 #endif /* INC_FSM_H_ */

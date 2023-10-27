@@ -31,6 +31,7 @@ extern "C" {
 #include "LED_control.h"
 #include "timer.h"
 #include "fsm.h"
+#include "button.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
