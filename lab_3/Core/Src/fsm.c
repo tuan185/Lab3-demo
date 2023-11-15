@@ -8,7 +8,11 @@
 static uint8_t red_counter = 10;
 static uint8_t green_counter = 8;
 
-static int trafficstate = 0;
+static enum TrafficState{GREEN_1, YELLOW_1, GREEN_2, YELLOW_2};
+static enum TrafficState trafficstate = GREEN_1;
+
+static enum MainMode{INIT, MODE_1, MODE_2, MODE_3};
+static enum MainMode mode = INIT;
 
 static int time_1 = 0;
 static int time_2 = 0;
@@ -24,77 +28,87 @@ void resetLED(){
 	HAL_GPIO_WritePin(RED_2_PORT, RED_2_PIN, RESET);
 }
 
-static int mode = 0;
-static int configMode = 0;
 
 void fsm_mode(void){
 	switch (mode){
-	case 0:
+	case INIT:
+		resetLED();
+		mode = MODE_1;
+		trafficstate = GREEN_1;
+		time_1 = green_counter;
+		time_2 = red_counter;
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		break;
+	case MODE_1:
 		mode_1();
-		if(is_button_pressed(1) == BUTTON_IS_PRESSED){
+		if(isButtonPressed(1) == PRESSED_STATE){
 			resetLED();
-			configMode = 0;
-			mode = 1;
+			mode = MODE_2;
 		}
 		break;
-	case 1:
-		mode_2(configMode);
-		if(is_button_pressed(1) == BUTTON_IS_PRESSED && configMode == 0){
+	case MODE_2:
+		configTime(0);
+		if(isButtonPressed(2) == PRESSED_STATE){
 			resetLED();
-			configMode = 1;
-			mode = 1;
-		}else if(is_button_pressed(1) == BUTTON_IS_PRESSED && configMode == 1){
+			mode = MODE_3;
+		}
+		break;
+	case MODE_3:
+		configTime(1);
+		if(isButtonPressed(2) == PRESSED_STATE){
 			resetLED();
-			mode = 0;
+			mode = INIT;
 		}
 		break;
 	}
-	if(is_button_pressed(0) == BUTTON_IS_PRESSED){
-		time_1 = 0;
-		time_2 = 0;
-		trafficstate = 0;
-		resetLED();
-		mode = 0;
+	if(isButtonPressed(0) == PRESSED_STATE){
+		mode = INIT;
 	}
 }
 
 
 void mode_1(void){
-	if(time_1 <= 0 || time_2 <= 0){
-		switch (trafficstate){
-			case 0:
-				HAL_GPIO_WritePin(YELLOW_2_PORT, YELLOW_2_PIN, RESET);
-				HAL_GPIO_WritePin(RED_1_PORT, RED_1_PIN, RESET);
-				HAL_GPIO_WritePin(GREEN_1_PORT, GREEN_1_PIN, SET);
-				HAL_GPIO_WritePin(RED_2_PORT, RED_2_PIN, SET);
-				trafficstate = 1;
-				time_1 = green_counter;
-				time_2 = red_counter;
-				break;
-			case 1:
-				HAL_GPIO_WritePin(GREEN_1_PORT, GREEN_1_PIN, RESET);
-				HAL_GPIO_WritePin(YELLOW_1_PORT, YELLOW_1_PIN, SET);
-				trafficstate = 2;
+	switch (trafficstate){
+		case GREEN_1:
+			HAL_GPIO_WritePin(YELLOW_2_PORT, YELLOW_2_PIN, RESET);
+			HAL_GPIO_WritePin(RED_1_PORT, RED_1_PIN, RESET);
+			HAL_GPIO_WritePin(GREEN_1_PORT, GREEN_1_PIN, SET);
+			HAL_GPIO_WritePin(RED_2_PORT, RED_2_PIN, SET);
+			if(time_1 <= 0){
+				trafficstate = YELLOW_1;
 				time_1 = red_counter-green_counter;
-				break;
-			case 2:
-				HAL_GPIO_WritePin(YELLOW_1_PORT, YELLOW_1_PIN, RESET);
-				HAL_GPIO_WritePin(RED_1_PORT, RED_2_PIN, RESET);
-				HAL_GPIO_WritePin(GREEN_2_PORT, GREEN_2_PIN, SET);
-				HAL_GPIO_WritePin(RED_1_PORT, RED_1_PIN, SET);
-				trafficstate = 3;
+			}
+			break;
+		case YELLOW_1:
+			HAL_GPIO_WritePin(GREEN_1_PORT, GREEN_1_PIN, RESET);
+			HAL_GPIO_WritePin(YELLOW_1_PORT, YELLOW_1_PIN, SET);
+			if(time_1 <= 0 || time_2 <= 0){
+				trafficstate = GREEN_2;
 				time_1 = red_counter;
 				time_2 = green_counter;
-				break;
-			case 3:
-				HAL_GPIO_WritePin(GREEN_2_PORT, GREEN_2_PIN, RESET);
-				HAL_GPIO_WritePin(YELLOW_2_PORT, YELLOW_2_PIN, SET);
-				trafficstate = 0;
+			}
+			break;
+		case GREEN_2:
+			HAL_GPIO_WritePin(YELLOW_1_PORT, YELLOW_1_PIN, RESET);
+			HAL_GPIO_WritePin(RED_1_PORT, RED_2_PIN, RESET);
+			HAL_GPIO_WritePin(GREEN_2_PORT, GREEN_2_PIN, SET);
+			HAL_GPIO_WritePin(RED_1_PORT, RED_1_PIN, SET);
+			if(time_1 <= 0 || time_2 <= 0){
+				trafficstate = YELLOW_2;
 				time_2 = red_counter-green_counter;
-				//setTrafficTimer(yellow_counter);
-				break;
-		}
+			}
+			break;
+		case YELLOW_2:
+			HAL_GPIO_WritePin(GREEN_2_PORT, GREEN_2_PIN, RESET);
+			HAL_GPIO_WritePin(YELLOW_2_PORT, YELLOW_2_PIN, SET);
+			if(time_1 <= 0 || time_2 <= 0){
+				trafficstate = GREEN_1;
+				time_1 = green_counter;
+				time_2 = red_counter;
+			}
+			break;
 	}
+
 	if(getTimerFlag(0)){
 		control7SEG(led7state, time_1, time_2);
 		led7state++;
@@ -108,13 +122,13 @@ void mode_1(void){
 }
 
 
-void mode_2(){
-	switch(configMode){
-	case 0:
+void configTime(int color){
+	switch(color){
+	case 0: 		//config time for red
 		if(getTimerFlag(1)){
 			HAL_GPIO_TogglePin(RED_1_PORT, RED_1_PIN);
 			HAL_GPIO_TogglePin(RED_2_PORT, RED_2_PIN);
-			setLEDBlinkTimer(250);
+			setLEDTimer(250);
 		}
 		if(getTimerFlag(0)){
 			led7state++;
@@ -124,15 +138,16 @@ void mode_2(){
 			control7SEG(led7state, red_counter, red_counter);
 			set7SEGTimer(250);
 		}
-		if(is_button_pressed(2) == BUTTON_IS_PRESSED){
+		if(isButtonPressed(1) == PRESSED_STATE){
 			red_counter++;
+			if(red_counter == 100) red_counter = 0;
 		}
 		break;
-	case 1:
+	case 1:			//config time for green
 		if(getTimerFlag(1)){
 			HAL_GPIO_TogglePin(GREEN_1_PORT, GREEN_1_PIN);
 			HAL_GPIO_TogglePin(GREEN_2_PORT, GREEN_2_PIN);
-			setLEDBlinkTimer(250);
+			setLEDTimer(250);
 		}
 		if(getTimerFlag(0)){
 			led7state++;
@@ -142,15 +157,14 @@ void mode_2(){
 			control7SEG(led7state, green_counter, green_counter);
 			set7SEGTimer(250);
 		}
-		if(is_button_pressed(2) == BUTTON_IS_PRESSED){
+		if(isButtonPressed(1) == PRESSED_STATE){
 			green_counter++;
+			if(green_counter == 100) green_counter = 0;
 		}
 		break;
 	default:
 		break;
 	}
-	if(red_counter == 100) red_counter = 0;
-	if(green_counter == 100) green_counter = 0;
 }
 
 

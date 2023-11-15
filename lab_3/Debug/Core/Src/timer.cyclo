@@ -1,0 +1,6 @@
+timer.c:15:6:timerInit	1
+timer.c:19:5:getTimerFlag	3
+timer.c:28:6:set7SEGTimer	1
+timer.c:33:6:setLEDTimer	1
+timer.c:38:6:timer_run	5
+timer.c:50:6:HAL_TIM_PeriodElapsedCallback	3

@@ -1,0 +1,6 @@
+../Core/Src/timer.c:15:6:timerInit	16	static
+../Core/Src/timer.c:19:5:getTimerFlag	16	static
+../Core/Src/timer.c:28:6:set7SEGTimer	16	static
+../Core/Src/timer.c:33:6:setLEDTimer	16	static
+../Core/Src/timer.c:38:6:timer_run	4	static
+../Core/Src/timer.c:50:6:HAL_TIM_PeriodElapsedCallback	16	static

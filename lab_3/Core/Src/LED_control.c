@@ -56,3 +56,4 @@ void control7SEG(uint8_t led7state, uint8_t sec_1, uint8_t sec_2){
 		break;
 	}
 };
+

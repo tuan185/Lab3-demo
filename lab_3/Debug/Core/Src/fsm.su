@@ -1,0 +1,4 @@
+../Core/Src/fsm.c:22:6:resetLED	8	static
+../Core/Src/fsm.c:32:6:fsm_mode	8	static
+../Core/Src/fsm.c:70:6:mode_1	8	static
+../Core/Src/fsm.c:125:6:configTime	16	static

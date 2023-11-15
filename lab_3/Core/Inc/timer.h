@@ -9,7 +9,7 @@
 #define INC_TIMER_H_
 void timerInit(int scale, int period);
 void set7SEGTimer(int duration);
-void setLEDBlinkTimer(int duration);
+void setLEDTimer(int duration);
 void setButtonTimer(int duration);
 void timer_run();
 int getTimerFlag(int flag);

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="GREEN_2"/>
+		<item key="selection" value="PRESSED_STATE"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="BUTTON_IS_PRESSED"/>
+			<item value="isButton1Pressed"/>
+			<item value="is_button_pressed"/>
+			<item value="button1_flag"/>
 			<item value="GREEN_2"/>
 			<item value="GREEN_1"/>
 			<item value="state_2"/>
@@ -18,6 +22,10 @@
 			<item value="Toggle"/>
 		</list>
 		<list key="replacehistory">
+			<item value="PRESSED_STATE"/>
+			<item value="isButtonPressed"/>
+			<item value="isButton1Pressed"/>
+			<item value="button_flag"/>
 			<item value="2"/>
 			<item value="1"/>
 			<item value="0"/>
